@@ -7,6 +7,7 @@ Added a real wheelchair entity! (not a mount item)
 Have fun with your wheelchair adventure!
 
 Recipes:
+At Workbench
 No ingredients needed
 
 Mechanics:
@@ -44,7 +45,7 @@ by Moebius Meow
 轮椅冒险愉快！
 
 合成表:
-空手合成
+在工作台处空手合成
 
 机制:
 * 轮椅物品
