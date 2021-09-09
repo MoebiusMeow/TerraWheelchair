@@ -1,0 +1,29 @@
+Added a real wheelchair entity! (not a mount item)
+
+- Allowing riding, pushing, throwing and more!
+- Multiplayer! Let your friends sit on your wheelchair and push them around (or vice versa).
+- Wheelchair challenge? Beat the game with your friend while staying in your friend's wheelchair all the way
+
+Have fun with your wheelchair adventure!
+
+Recipes:
+Craft at the workbench (no ingredients needed)
+
+Mechanics:
+* Wheelchair Item
+- Use the wheelchair item to spawn a wheelchair entity
+- When holding the wheelchair item, you are able to push the wheelchair you summoned
+- When pushing your wheelchair, use the wheelchair item again to throw the wheelchair (also the player on it) towards your mouse direction 
+- When your wheelchair is far away, use the wheelchair item again to teleport it (also the player on it) back
+
+* Wheelchair Prescription
+- Favorate the prescription item in your bag to allow others to carry you with there wheelchair
+- In that case, when a empty wheelchair is near, your charactor will automatically sit on it
+- When sitting on a wheelchair, others can push, throw, and teleport you as they doing that to the wheelchair
+
+* Extra
+- Only the player who own the wheelchair entity can push the wheelchair. If you want to carry your friends around, you'll need to summon your wheelchair.
+- The prescription item even allow you to sit on your own wheelchair (e.g. in single player). If that happens, the wheelchair will get into auto runing state to slowly carry you around (since others can't push the wheelchair you summoned).
+
+Version 0.1
+by Moebius Meow
