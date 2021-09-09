@@ -16,6 +16,7 @@ namespace TerraWheelchair.Items
 
 		public override void SetDefaults() 
 		{
+			item.scale = 0.5f;
 			item.holdStyle = ItemHoldStyleID.HoldingUp;
 			item.width = 10;
 			item.height = 10;

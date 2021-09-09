@@ -312,7 +312,7 @@ namespace TerraWheelchair.NPCs
             {
 				return;
             }
-			target.getOffWheelchair();
+			target.GetOffWheelchair();
 		}
 		
 		private void UpdatePlayerPosition()
