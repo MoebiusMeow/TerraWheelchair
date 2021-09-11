@@ -8,15 +8,46 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.ID;
 using Terraria.DataStructures;
+using TerraWheelchair.Items;
+using TerraWheelchair.NPCs;
+using TerraWheelchair.Projectiles;
+using System.Linq;
 
 namespace TerraWheelchair
 {
 	public class WheelchairPlayer : ModPlayer
 	{
-		public bool hasPrescription;
+		public static bool ALWAYS_SYNC_CHAIR_POS => false;
+
+		// client -> sync -> server -> other clients
+		public int wheelchairUUID = -1; // which chair this player summoned
+		public int onChairUUID = -1; // which chair this player is on
+		public bool hasPrescription = false;
 		public bool holdingWheelchair;
-		public bool onWheelchair;
 		public float mouseAiming;
+
+		// local
+		public bool localHoldingChairItem;
+
+		public bool IsLocalPlayer { get => Main.netMode != NetmodeID.Server && player.whoAmI == Main.myPlayer;  }
+
+		public WheelchairProj GetWheelchair()
+        {
+			if (wheelchairUUID == -1) return null;
+			Projectile match = Main.projectile.FirstOrDefault(x => x.identity == wheelchairUUID);
+			return match == null ? null : match.modProjectile as WheelchairProj;
+			//int id = Projectile.GetByUUID(player.whoAmI, wheelchairUUID);
+			//return id == -1 ? null : Main.projectile[id].modProjectile as WheelchairProj;
+        }
+
+		public WheelchairProj GetOnChair()
+		{
+			if (onChairUUID == -1) return null;
+			Projectile match = Main.projectile.FirstOrDefault(x => x.identity == onChairUUID);
+			return match == null ? null : match.modProjectile as WheelchairProj;
+			//int id = Projectile.GetByUUID(player.whoAmI, onChairUUID);
+			//return id == -1 ? null : Main.projectile[id].modProjectile as WheelchairProj;
+		}
 
 		public override void ResetEffects()
 		{
@@ -24,6 +55,8 @@ namespace TerraWheelchair
 
 		public override void OnEnterWorld(Player player)
 		{
+			wheelchairUUID = -1;
+			onChairUUID = -1;
 		}
 
         public override void PreUpdate()
@@ -33,7 +66,22 @@ namespace TerraWheelchair
 				Vector2 mouseDirection = GetMousePosition(player) - player.Center;
 				mouseAiming = (float)Math.Atan2(mouseDirection.Y, mouseDirection.X);
             }
+			UpdatePrescription();
+			ValidateOnChair();
+			Item item = player.inventory[player.selectedItem];
+			localHoldingChairItem = (item.type == ModContent.ItemType<Wheelchair>());
 		}
+
+		private void ValidateOnChair()
+        {
+			WheelchairProj chair = GetOnChair();
+			if (chair != null && chair.AI_Target != player.whoAmI)
+			{ 
+				// wheelchair already occupied
+				onChairUUID = -1;
+            }
+			
+        }
 		private Vector2 GetMousePosition(Player player)
 		{
 			Vector2 position = Main.screenPosition;
@@ -49,8 +97,10 @@ namespace TerraWheelchair
 			clone.player.whoAmI = player.whoAmI;
 			clone.hasPrescription = hasPrescription;
 			clone.holdingWheelchair = holdingWheelchair;
-			clone.onWheelchair = onWheelchair;
 			clone.mouseAiming = mouseAiming;
+
+			clone.wheelchairUUID = wheelchairUUID;
+			clone.onChairUUID = onChairUUID;
 		}
 
 		public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
@@ -59,54 +109,75 @@ namespace TerraWheelchair
 			
 			packet.Write((byte)TerraWheelchair.WheelchairMessageType.syncWheelchairPlayer);
 			packet.Write((byte)player.whoAmI);
-			packet.Write((byte)(player.whoAmI == fromWho ? (hasPrescription ? 1 : 0) : 255));
+			packet.Write(hasPrescription);
 			packet.Write(holdingWheelchair);
-			packet.Write(onWheelchair);
 			packet.Write(mouseAiming);
+
+			packet.Write(wheelchairUUID);
+			packet.Write(onChairUUID);
 			packet.Send(toWho, fromWho);
 		}
 		public override void SendClientChanges(ModPlayer clientPlayer)
-		{
-			// Here we would sync something like an RPG stat whenever the player changes it.
+		{ 
 			WheelchairPlayer clone = clientPlayer as WheelchairPlayer;
 			// 				
 			UpdatePrescription();
-			if (true)
-			{
-				//NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("sending changes {0} {1} {2}", player.name, clone.hasPrescription, hasPrescription)));
+			if (!IsLocalPlayer) return;
+			if (clone.hasPrescription != hasPrescription || clone.holdingWheelchair != holdingWheelchair || clone.wheelchairUUID != wheelchairUUID || clone.onChairUUID != onChairUUID)
+			{ 
 				var packet = mod.GetPacket();
 				packet.Write((byte)TerraWheelchair.WheelchairMessageType.clientChanges);
 				packet.Write((byte)player.whoAmI);
 				packet.Write(hasPrescription);
 				packet.Write(holdingWheelchair);
-				packet.Write(onWheelchair);
+
+				packet.Write(wheelchairUUID);
+				packet.Write(onChairUUID);
+				packet.Send();
+			}
+			SendClientTick();
+		}
+
+		public void SendClientTick()
+        {
+			if (IsLocalPlayer)
+			{
+				var packet = mod.GetPacket();
+				packet.Write((byte)TerraWheelchair.WheelchairMessageType.clientTickData);
+				packet.Write((byte)player.whoAmI);
 				packet.Write(mouseAiming);
-				packet.Write(player.position.X);
-				packet.Write(player.position.Y);
+				if (WheelchairPlayer.ALWAYS_SYNC_CHAIR_POS)
+				{
+					WheelchairProj chair = GetWheelchair();
+					Vector2 chairPos = chair != null ? chair.projectile.position : Vector2.Zero;
+					Vector2 chairVel = chair != null ? chair.projectile.velocity : Vector2.Zero;
+					packet.Write(chairPos.X);
+					packet.Write(chairPos.Y);
+					packet.Write(chairVel.X);
+					packet.Write(chairVel.Y);
+				}
 				packet.Send();
 			}
 		}
 
 		public override void PreUpdateBuffs()
         {
-			UpdatePrescription();
-			Item item = player.inventory[player.selectedItem];
-			holdingWheelchair = (item.type == mod.ItemType("Wheelchair"));
 		}
         public override void UpdateDead()
 		{
 			holdingWheelchair = false;
-			onWheelchair = false;
+			localHoldingChairItem = false;
+			onChairUUID = -1; // false;
 		}
 
 		public override void SetupStartInventory(IList<Item> items, bool mediumcoreDeath)
 		{
 			Item item = new Item();
-			item.SetDefaults(mod.ItemType("Wheelchair"));
+			item.SetDefaults(ModContent.ItemType<Wheelchair>());
 			item.stack = 1;
 			items.Add(item);
 			item = new Item();
-			item.SetDefaults(mod.ItemType("WheelchairPrescription"));
+			item.SetDefaults(ModContent.ItemType<WheelchairPrescription>());
 			item.stack = 1;
 			items.Add(item);
 		}
@@ -118,40 +189,45 @@ namespace TerraWheelchair
 				return hasPrescription;
             }
 			foreach (Item item in player.inventory)
-            {
-				//if (item.netID != 0) mod.Logger.DebugFormat("Item {0} {1}", item.Name, item.netID);
-				if (item.favorited && item.type == mod.ItemType("WheelchairPrescription"))
-				{
-					// NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("my {0} who {1}", Main.myPlayer, player.whoAmI)));
+            { 
+				if (item.favorited && item.type == ModContent.ItemType<WheelchairPrescription>())
+				{ 
 					return (hasPrescription = true);
 				}
-			}
-			if (Main.netMode == NetmodeID.MultiplayerClient && Main.player[Main.myPlayer].name == "test")
-			{
-				//NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("player {0} got nothing", player.name)));
 			}
 			return (hasPrescription = false);
 		}
         
-		public void GetOffWheelchair()
+		public void OffWheelchair()
         {
-			onWheelchair = false;
-        }
+			onChairUUID = -1; // false;
+			player.fullRotation = 0f;
+
+		}
 
 		public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource)
 		{
-			GetOffWheelchair();
+			holdingWheelchair = false;
+			localHoldingChairItem = false;
+			OffWheelchair();
 			return true;
 		}
 
         public override void PostUpdate()
         {
+			if (GetOnChair() == null)
+				OffWheelchair();
 		}
 
         public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo)
 		{
-			if (onWheelchair)
+			WheelchairProj chair = GetOnChair();
+			if (chair != null)
 			{
+				// visually sync player position to wheelchair
+				// (real position is one tick behind player position due to update order)
+				drawInfo.position += -player.position + chair.projectile.position + new Vector2((-player.width + chair.projectile.width) * 0.5f + player.direction * 5, chair.projectile.height - player.height - 5f);
+
 				player.legFrameCounter = 0.0;
 				player.legFrame.Y = 1;
 				player.legFrame.X = -5;
@@ -161,10 +237,10 @@ namespace TerraWheelchair
 					player.bodyFrame.Y = player.bodyFrame.Height * 6;
 				}
 				player.wings = -1;
+				player.fullRotation *= 0.9f;
 			}
 			else
 			{
-				player.fullRotation *= 0.9f;
 				player.legFrame.X = player.legFrame.Width * (int)Math.Round(player.legFrame.X / (double)player.legFrame.Width);
 			}
 		}

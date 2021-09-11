@@ -9,18 +9,19 @@ namespace TerraWheelchair.NPCs
 {
 	public class WheelchairNpc : ModNPC
 	{
-		Vector2 localOldPosition;
+		// Unused
+		// Moved to WheelchairProj
+
+		/*Vector2 localOldPosition;
 		Vector2 localOldVelocity;
 		bool localHolding;
 		bool oldLocalHolding;
+		bool localBypassPlatform;
 
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Wheelchair");
 			DisplayName.AddTranslation(Terraria.Localization.GameCulture.Chinese, "ÂÖÒÎ");
-			//Main.projPet[projectile.type] = true;
-			//Main.projFrames[projectile.type] = 2;
-			//ProjectileID.Sets.MinionSacrificable[projectile.type] = true;
 			Main.npcFrameCount[npc.type] = 2;
 			NPCID.Sets.MustAlwaysDraw[npc.type] = true;
 		}
@@ -33,30 +34,22 @@ namespace TerraWheelchair.NPCs
 			npc.aiStyle = -1;
 			npc.friendly = true;
 			npc.ai[0] = npc.ai[1] = -1;
-			//npc.netAlways = true;
 		}
 
-        public override bool CheckActive()
-        {
+		public override bool CheckActive()
+		{
 			return false;
-        }
+		}
 
-        public override void PostDraw(SpriteBatch spriteBatch, Color drawColor)
-        {
-			//Main.NewText("post");
-			//Main.NewText(String.Format("{0} {1}",npc.velocity,npc.oldVelocity));
+		public override void PostDraw(SpriteBatch spriteBatch, Color drawColor)
+		{
 			CheckCollide(localOldVelocity, localOldPosition);
 			UpdatePlayerPosition();
-		}
-        public override void PostAI()
-        {
-			//Main.NewText("post ai");
-			//Main.NewText(String.Format("{0} {1}", npc.velocity, npc.oldVelocity));
 		}
 
 		public int AI_Target
 		{
-			get => (int) npc.ai[0];
+			get => (int)npc.ai[0];
 			set => npc.ai[0] = value;
 		}
 
@@ -71,13 +64,14 @@ namespace TerraWheelchair.NPCs
 			get => npc.ai[2];
 			set => npc.ai[2] = value;
 		}
+
 		public override void AI()
-        {
+		{
 			Lighting.AddLight(npc.Center, 0.3f, 0.3f, 0.3f);
-			
+
 			WheelchairPlayer owner = Main.player[AI_Holder].GetModPlayer<WheelchairPlayer>();
 			if (!owner.player.active)
-            {
+			{
 				owner.player.ClearBuff(mod.BuffType("WheelchairBuff"));
 			}
 			if (owner.player.HasBuff(mod.BuffType("WheelchairBuff")))
@@ -85,7 +79,7 @@ namespace TerraWheelchair.NPCs
 				npc.timeLeft = 5;
 			}
 			else
-            {
+			{
 				npc.timeLeft -= 1;
 				if (npc.timeLeft < 0)
 				{
@@ -93,7 +87,7 @@ namespace TerraWheelchair.NPCs
 					npc.active = false;
 				}
 				return;
-            }				
+			}
 			foreach (NPC p in Main.npc)
 				if (p.active && p.type == npc.type && p.netID != npc.netID && (p.modNPC as WheelchairNpc).AI_Holder == AI_Holder)
 				{
@@ -109,45 +103,40 @@ namespace TerraWheelchair.NPCs
 				}
 
 			WheelchairPlayer target = CheckTarget();
-			if (target != null)
-            {
-				//NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("target {0} {1}, owner {2} {3}", target.name, target.whoAmI, owner.name, owner.whoAmI)));
-				//Main.NewText(String.Format("This is {0}, target {1}, owner {2}", Main.clientPlayer.name, target.name, owner.name));
-            }
-			else
-            {
-				//NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("target null, owner {0} {1}", owner.player.name, owner.player.whoAmI)));
-			}
 
 			localHolding = false;
 			npc.velocity.X *= 0.99f;
 			npc.velocity.Y = npc.velocity.Y + 0.4f + AI_Hopping;
 			AI_Hopping *= 0.3f;
-			//projectile.netUpdate = true;
+
 			if (npc.velocity.Y > 16f)
 			{
 				npc.velocity.Y = 16f;
 			}
+			localBypassPlatform = false;
 			if (target != null && target.player.whoAmI == owner.player.whoAmI)
 			{
 				npc.spriteDirection = owner.player.direction;
 				npc.velocity.X = (npc.velocity.X * owner.player.direction > 0 ? npc.velocity.X * 0.7f : 0) + 0.5f * owner.player.direction;
 			}
 			else
-            {
+			{
 				Vector2 ownerHand = owner.player.Center + new Vector2(owner.player.direction * 10f, 0);
-				if (owner.player.itemAnimation == 0 && owner.holdingWheelchair && (npc.Center - ownerHand).Length() < 40f)
-                {
+				if (owner.player.itemAnimation == 0 && owner.holdingWheelchair && (npc.Center - ownerHand).Length() < 45f)
+				{
 					localHolding = true;
 					owner.player.bodyFrame.Y = owner.player.bodyFrame.Height * 3;
 					npc.spriteDirection = owner.player.direction;
 					npc.velocity = owner.player.velocity;
-					npc.velocity += 1f * (ownerHand - owner.player.velocity + new Vector2(owner.player.direction * 16f, 5f) - npc.Center);
+					Vector2 vec = (ownerHand + new Vector2(owner.player.direction * 16f, 5f) - npc.Center);
+					npc.velocity = vec; // - owner.player.velocity;
 					var force = npc.velocity.Length();
 					if (force > 14f)
 						npc.velocity *= 14f / force;
-				}			
-            }
+					if (vec.Y > 5)
+						localBypassPlatform = true;
+				}
+			}
 
 			if (target != null)
 			{
@@ -166,22 +155,39 @@ namespace TerraWheelchair.NPCs
 
 			npc.netUpdate = true;
 
-			//Main.NewText("pre");
-			//Main.NewText(String.Format("{0} {1}", npc.velocity, npc.oldVelocity));
 			localOldPosition = npc.position;
 			localOldVelocity = npc.velocity;
-			// Main.NewText(System.String.Format("{0} {1}",npc.velocity,owner.player.velocity));
-			// if (Main.clientPlayer.whoAmI == owner.player.whoAmI) npc.netUpdate = true;
-			// if (Main.netMode == NetmodeID.MultiplayerClient) NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("chair from {0} tar {1}", owner.player.name, target.player.name)));
 		}
 
-        public override void NPCLoot()
-        {
+		public override void NPCLoot()
+		{
 			ReleaseTarget(CheckTarget());
+		}
+
+		private bool CheckPlatform(Vector2 position, float offsetY)
+		{
+			int tileX = (int)(position.X / 16f);
+			int tileY = (int)((position.Y + offsetY) / 16f);
+			Tile tile = Main.tile[tileX, tileY];
+			if (tileX < 0 || tileX >= Main.maxTilesX) return false;
+			if (tileY < 0 || tileY >= Main.maxTilesY) return false;
+			// Main.NewText(System.String.Format("{0} {1} {2} {3}", Main.tileSolid[tile.type], Main.tileSolidTop[tile.type], Main.tileTable[tile.type], tile.type));
+			return (tile.type == 0 || Main.tileSolid[tile.type] == false || Main.tileSolidTop[tile.type] || Main.tileTable[tile.type]);
+		}
+
+		private bool CheckGoThroughPlatform()
+        {
+			const float offsetY = 4;
+			const int steps = 4;
+			Vector2 step = new Vector2(npc.width / (float)(steps - 1), 0);
+			for (int i = 0; i < steps; i++)
+				if (!CheckPlatform(npc.BottomLeft + step * i, offsetY))
+					return false;
+			return true;
         }
 
 		private void CheckCollide(Vector2 oldVelocity, Vector2 oldPosition)
-		{
+		{ 
 			if (localHolding != oldLocalHolding)
             {
 				if (localHolding)
@@ -194,9 +200,11 @@ namespace TerraWheelchair.NPCs
 			WheelchairPlayer owner = Main.player[AI_Holder].GetModPlayer<WheelchairPlayer>();
 			if (localHolding)
             {
-				//Main.NewText(String.Format("{0} {1} {2}", npc.velocity, oldVelocity, npc.oldVelocity));
-				//Main.NewText(String.Format("{0} {1} {2}", npc.position, oldPosition, npc.oldPosition));
-				if (npc.velocity.X == 0 && oldVelocity.X != 0 && oldPosition.X == npc.position.X && owner.player.velocity.X * oldVelocity.X > 0 && owner.player.direction * oldVelocity.X > 0)
+				if (localBypassPlatform && npc.collideY && npc.velocity.Y == 0 && oldVelocity.Y > 0 && CheckGoThroughPlatform())
+				{
+					npc.position.Y += 4.0f;
+                }
+				if (npc.velocity.X == 0 && npc.collideX && oldVelocity.X != 0 && oldPosition.X == npc.position.X && owner.player.velocity.X * oldVelocity.X > 0 && owner.player.direction * oldVelocity.X > 0)
                 {
 					if (Math.Abs(AI_Hopping) <= 0.00001f)
 					{
@@ -211,7 +219,7 @@ namespace TerraWheelchair.NPCs
             }
 			else
             {
-				if (npc.velocity.Y == 0 && npc.velocity.Y != oldVelocity.Y )
+				if (npc.velocity.Y == 0 && npc.collideY) //(npc.velocity.Y == 0 && npc.velocity.Y != oldVelocity.Y )
 				{
 					if (oldVelocity.Y > 2)
 					{
@@ -220,17 +228,18 @@ namespace TerraWheelchair.NPCs
 						Main.PlaySound(SoundID.Tink, -1, -1, 1, 1, 0.3f);
 						Main.PlaySound(SoundID.Item, -1, -1, 52, 0.5f, 100.3f);
 					}
-				}
-				// Main.NewText(String.Format("{0} {1} {2}", npc.velocity, oldVelocity, npc.oldVelocity));
-				if (npc.velocity.X == 0 && npc.velocity.X != oldVelocity.X)
+				} 
+				if (npc.velocity.X == 0 && npc.collideX && npc.velocity.X != oldVelocity.X)
 				{
-					if (npc.velocity.Y == 0 && Math.Abs(AI_Hopping) <= 0.00001f)
+					if (Math.Abs(AI_Hopping) <= 0.00001f)
 					{
-						AI_Hopping = -3.0f;
+						AI_Hopping = npc.velocity.Y == 0 ? -3.0f : -1.0f;
 						npc.rotation = -npc.spriteDirection * 0.5f;
 						if (owner.player.whoAmI != AI_Target)
 						{
 							npc.velocity.X = -0.1f * oldVelocity.X;
+							if (npc.velocity.X != 0) 
+								npc.spriteDirection = npc.velocity.X > 0 ? 1 : -1;
 						}
 						else
                         {
@@ -264,7 +273,7 @@ namespace TerraWheelchair.NPCs
 				if (p.whoAmI == AI_Target)
                 {
 					target = p.GetModPlayer<WheelchairPlayer>();
-					target.onWheelchair = true;
+					target.onChairUUID = (Int16)npc.whoAmI;
 					break;
                 }
 			if (target != null)
@@ -276,33 +285,24 @@ namespace TerraWheelchair.NPCs
 					AI_Target = -1;
 				}
 			}
+			else
+				AI_Target = -1;
 			if (target != null)
             {
-				//if (Main.netMode == NetmodeID.MultiplayerClient && Main.player[Main.myPlayer].name == "test" && Math.Sin(Main.time) > 0.3) NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("{0} continue {1}", Main.player[Main.myPlayer].name, target.player.name)));
 				return target;
             }
 			
 			foreach (Player p in Main.player)
 				if (p.active && p.Distance(npc.Center) < 50f)
 				{
-					//mod.Logger.DebugFormat("checking {0}", p.name);
-					// if (Main.netMode == Terraria.ID.NetmodeID.Server)
-					if (Main.netMode == NetmodeID.MultiplayerClient && Main.player[Main.myPlayer].name == "test" && Math.Sin(Main.time) > 0.3)
-					{
-						//NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("pp {0} {1} {2}", p.name, p.position.X, p.GetModPlayer<WheelchairPlayer>().hasPrescription)));
-					}
-					if (p.active && !p.dead && !p.mount.Active && !p.GetModPlayer<WheelchairPlayer>().onWheelchair && p.GetModPlayer<WheelchairPlayer>().UpdatePrescription())
-					{
-						//mod.Logger.DebugFormat("found {0}", p.name);
-						//NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(String.Format("{0} found {1}", Main.player[Main.myPlayer].name, p.name)));
+					if (p.active && !p.dead && !p.mount.Active && p.GetModPlayer<WheelchairPlayer>().onChairUUID == -1 && p.GetModPlayer<WheelchairPlayer>().UpdatePrescription())
+					{ 
 						target = p.GetModPlayer<WheelchairPlayer>();
-						target.onWheelchair = true;
-						// Main.NewText("found target");
+						target.onChairUUID = (Int16)npc.whoAmI; 
 						AI_Target = p.whoAmI;
 						break;
 					}
-				}
-			//projectile.netUpdate = true;
+				} 
 			return target;
 		}
 
@@ -312,7 +312,7 @@ namespace TerraWheelchair.NPCs
             {
 				return;
             }
-			target.GetOffWheelchair();
+			target.OffWheelchair();
 		}
 		
 		private void UpdatePlayerPosition()
@@ -321,11 +321,9 @@ namespace TerraWheelchair.NPCs
 			if (target == null)
             {
 				return;
-            }
-			//if (target.player.whoAmI != Main.player[AI_Holder].whoAmI)
-            //{
+            } 
 			target.player.direction = npc.spriteDirection;
-            //}
+ 
 			target.player.position = npc.position + npc.velocity * 0.01f + new Vector2((-target.player.width + npc.width) * 0.5f + target.player.direction * 5, npc.height - target.player.height - 5f);
 			target.player.velocity = npc.velocity + new Vector2(0f, 1f);
 
@@ -334,12 +332,12 @@ namespace TerraWheelchair.NPCs
 
 			if (Main.clientPlayer.whoAmI == target.player.whoAmI)
             {
-				Main.SetCameraLerp(0.05f, 5);
+				Main.SetCameraLerp(0.2f, 5);
             }
 			if (npc.velocity.Y <= 0f)
 			{
 				target.player.fallStart = target.player.fallStart2 = (int)(target.player.position.Y / 16f);
 			}
-		}
+		}*/
 	}
 }

@@ -1,3 +1,13 @@
+----------------
+Update 2021/9/10
+v0.9.5
+- Network package reworked
+Fixed glitches of wheelchairs in multiplayer! now wheelchairs work exactly well as in single player! (no more lagging on your wheelchair)
+- Fixed some collision bug, also allowing bypassing platforms when holding a wheelchair
+重做了网络部分，修复了轮椅闪烁问题，现在多人游戏中轮椅可以和单人一样流畅
+修复了一些碰撞Bug，现在轮椅可以在手持时穿越平台
+----------------
+
 Added a real wheelchair entity! (not a mount item)
 
 - Allowing riding, pushing, throwing and more!
@@ -31,7 +41,7 @@ Mechanics:
 
 Bug report: MoebiusMeow@gmail.com
 
-Version 0.9 (on 1.3 tml)
+Version 0.9.5 (on 1.3 tml)
 by Moebius Meow
 
 
@@ -68,5 +78,5 @@ by Moebius Meow
 
 作者QQ邮箱 MoebiusMeow@qq.com
 
-Version 0.9 (on 1.3 tml)
+Version 0.9.5 (on 1.3 tml)
 by Moebius Meow

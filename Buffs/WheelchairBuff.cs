@@ -4,7 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TerraWheelchair.Projectiles;
 using TerraWheelchair.NPCs;
+using TerraWheelchair;
 
 namespace TerraWheelchair.Buffs
 {
@@ -23,12 +25,21 @@ namespace TerraWheelchair.Buffs
 		public override void Update(Player player, ref int buffIndex)
 		{
 			int wheelchairCount = 0;
+			WheelchairPlayer wp = player.GetModPlayer<WheelchairPlayer>();
+			if (wp.GetWheelchair() != null)
+				wheelchairCount += 1;
+			/* foreach (Projectile p in Main.projectile)
+				if (p.active && p.type == ModContent.NPCType<WheelchairNpc>())
+					if ((p.modProjectile as WheelchairProj).Holder == player.whoAmI)
+					{
+						wheelchairCount += 1;
+					}
 			foreach (NPC p in Main.npc) 
 				if (p.active && p.type == ModContent.NPCType<WheelchairNpc>())
 					if ((p.modNPC as WheelchairNpc).AI_Holder == player.whoAmI)
 					{
 						wheelchairCount += 1;
-					}
+					} */
 			if (wheelchairCount > 0)
             {
 				player.buffTime[buffIndex] = 18000;

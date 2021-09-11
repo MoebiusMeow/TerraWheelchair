@@ -37,67 +37,62 @@ namespace TerraWheelchair.Items
 
         public override bool UseItem(Player player)
         {
-			WheelchairNpc chair = null;
+			// WheelchairNpc chair = null;
+			WheelchairProj chair;
 			WheelchairPlayer modPlayer = player.GetModPlayer<WheelchairPlayer>();
 			Vector2 mouseDirection = new Vector2((float)Math.Cos(modPlayer.mouseAiming), (float)Math.Sin(modPlayer.mouseAiming));
-			if (Main.netMode == NetmodeID.Server)
-            {
-				mod.Logger.Debug(modPlayer.mouseAiming);
-				//mouseDirection = new Vector2(0, 1);
-            }
-			else if (Main.netMode == NetmodeID.MultiplayerClient)
-            {
-				//mouseDirection = new Vector2(player.direction, -1);
-			}
+ 
 			if (mouseDirection.X != 0)
 				player.direction = (mouseDirection.X > 0 ? 1 : -1);
-			foreach (NPC p in Main.npc)
+			chair = player.GetModPlayer<WheelchairPlayer>().GetWheelchair();
+			/* foreach (NPC p in Main.npc)
 				if (p.active && p.type == ModContent.NPCType<WheelchairNpc>() && (p.modNPC as WheelchairNpc).AI_Holder == player.whoAmI)
 				{
 					chair = p.modNPC as WheelchairNpc;
 					player.AddBuff(ModContent.BuffType<WheelchairBuff>(), 2000);
 					break;
-				}
+				} */
 			if (chair == null)
 			{
 				player.AddBuff(ModContent.BuffType<WheelchairBuff>(), 2000);
-				var wheelchairID = NPC.NewNPC((int)player.Center.X - 20 - player.direction * 10, (int)player.Center.Y - 20, ModContent.NPCType<WheelchairNpc>());
-				chair = Main.npc[wheelchairID].modNPC as WheelchairNpc;
-				chair.AI_Holder = player.whoAmI;
-				Projectile.NewProjectile(player.Center.X, player.Center.Y, 8 * mouseDirection.X, 8 * mouseDirection.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, player.whoAmI);
-			}
-			else if ((chair.npc.modNPC as WheelchairNpc).AI_Target != player.whoAmI)
-			{
-				if (chair.npc.Distance(player.Center) > 30f)
+				if (player.GetModPlayer<WheelchairPlayer>().IsLocalPlayer)
 				{
-					var duration = (float)Math.Max(Math.Min((player.Center - chair.npc.Center).Length() * 0.1, 10), 4);
-					Vector2 towardsPlayer = (player.Center - chair.npc.Center) / duration;
-					var trailID = Projectile.NewProjectile(chair.npc.Center.X, chair.npc.Center.Y, towardsPlayer.X, towardsPlayer.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, player.whoAmI);
+					// var wheelchairID = NPC.NewNPC((int)player.Center.X - player.direction * 10, (int)player.Center.Y - 20, ModContent.NPCType<WheelchairNpc>());
+					int chairID = Projectile.NewProjectile(player.Center.X - player.direction * 10, player.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<WheelchairProj>(), 0, 0, player.whoAmI);
+					chair = Main.projectile[chairID].modProjectile as WheelchairProj;
+					// chair = Main.npc[wheelchairID].modNPC as WheelchairNpc;
+					// chair.AI_Holder = player.whoAmI; 
+					modPlayer.wheelchairUUID = chair.projectile.identity;
+				}
+				Projectile.NewProjectile(player.Center.X, player.Center.Y, 8 * mouseDirection.X, 8 * mouseDirection.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, 0);
+			}
+			else if (chair.AI_Target != player.whoAmI)
+			{
+				if (chair.projectile.Distance(player.Center) > 30f)
+				{
+					var duration = (float)Math.Max(Math.Min((player.Center - chair.projectile.Center).Length() * 0.1, 10), 4);
+					Vector2 towardsPlayer = (player.Center - chair.projectile.Center) / duration;
+					var trailID = Projectile.NewProjectile(chair.projectile.Center.X, chair.projectile.Center.Y, towardsPlayer.X, towardsPlayer.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, 0, player.whoAmI);
 					Main.projectile[trailID].timeLeft = (int)duration;
-					chair.npc.position = player.Center + new Vector2(-20 - player.direction * 5, -20);
-					chair.npc.oldVelocity = chair.npc.velocity = player.velocity + new Vector2(0, -4);
-					Projectile.NewProjectile(chair.npc.Center.X, chair.npc.Center.Y, 8 * mouseDirection.X, 8 * mouseDirection.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, player.whoAmI);
+					chair.projectile.position = player.Center + new Vector2(-20 - player.direction * 10, -20);
+					chair.projectile.oldVelocity = chair.projectile.velocity = player.velocity + new Vector2(0, -4);
+					Projectile.NewProjectile(chair.projectile.Center.X, chair.projectile.Center.Y, 8 * mouseDirection.X, 8 * mouseDirection.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, 0);
 				}
 				else
 				{
-					chair.npc.velocity = player.velocity + 10 * mouseDirection;
-					var force = chair.npc.velocity.Length();
+					chair.projectile.velocity = player.velocity + 10 * mouseDirection;
+					var force = chair.projectile.velocity.Length();
 					if (force > 15f)
-						chair.npc.velocity *= 15f / force;
+						chair.projectile.velocity *= 15f / force;
 					Main.PlaySound(SoundID.Item, -1, -1, 1, 1.2f, 3.5f);
 				}
-			}
-			else
-            {
-				// Projectile.NewProjectile(chair.npc.Center.X, chair.npc.Center.Y, 8 * mouseDirection.X, 8 * mouseDirection.Y, ProjectileID.ConfettiMelee, 0, player.whoAmI);
-			}
+			} 
 			return true;
         }
 
 		public override void AddRecipes() 
 		{
-			ModRecipe recipe = new ModRecipe(mod);
-			//recipe.AddIngredient(ItemID.DirtBlock, 10);
+			ModRecipe recipe = new ModRecipe(mod); 
 			recipe.AddTile(TileID.WorkBenches);
 			recipe.SetResult(this);
 			recipe.AddRecipe();

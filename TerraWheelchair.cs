@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
+using TerraWheelchair.NPCs;
 
 namespace TerraWheelchair
 {
@@ -18,30 +19,26 @@ namespace TerraWheelchair
 					byte playernumber = reader.ReadByte();
 					WheelchairPlayer player = Main.player[playernumber].GetModPlayer<WheelchairPlayer>();
 					var tmpByte = reader.ReadByte();
-					if (tmpByte != (byte)255)
-					{
-						player.hasPrescription = (tmpByte == (byte)1);
-						//if (Main.netMode != Terraria.ID.NetmodeID.Server)
-						//	NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(System.String.Format("player sync {0} has {1} (client {2})", player.player.name, player.hasPrescription, Main.player[Main.myPlayer].name)));
-						//else
-						//	Logger.DebugFormat("player sync {0} has {1} (server)", player.player.name, player.hasPrescription);
-					}
+					player.hasPrescription = (tmpByte == (byte)1);
+
 					player.holdingWheelchair = reader.ReadBoolean();
-					player.onWheelchair = reader.ReadBoolean();
 					player.mouseAiming = reader.ReadSingle();
-					Logger.Debug(player.onWheelchair);
+
+					player.wheelchairUUID = reader.ReadInt32();
+					player.onChairUUID = reader.ReadInt32();
+
+					//Main.NewText(string.Format("sync {0} has P = {1}", player.player.name, player.hasPrescription));
 					break;
+
 				case WheelchairMessageType.clientChanges:
 					playernumber = reader.ReadByte();
 					player = Main.player[playernumber].GetModPlayer<WheelchairPlayer>();
 					player.hasPrescription = reader.ReadBoolean();
 					player.holdingWheelchair = reader.ReadBoolean();
-					player.onWheelchair = reader.ReadBoolean();
-					player.mouseAiming = reader.ReadSingle();
-					//Logger.DebugFormat("received player change {0}  (server)", player.mouseAiming);
-					player.player.position.X = reader.ReadSingle();
-					player.player.position.Y = reader.ReadSingle();
-					// Unlike SyncPlayer, here we have to relay/forward these changes to all other connected clients
+
+					player.wheelchairUUID = reader.ReadInt32();
+					player.onChairUUID = reader.ReadInt32();
+					//Main.NewText(string.Format("{2} rece {0} holding = {1}", player.player.name, player.holdingWheelchair, Main.myPlayer));
 					if (Main.netMode == Terraria.ID.NetmodeID.Server)
 					{
 						var packet = GetPacket();
@@ -49,15 +46,39 @@ namespace TerraWheelchair
 						packet.Write(playernumber); 
 						packet.Write(player.hasPrescription);
 						packet.Write(player.holdingWheelchair);
-						packet.Write(player.onWheelchair);
-						packet.Write(player.mouseAiming);
-						packet.Write(player.player.position.X);
-						packet.Write(player.player.position.Y);
+
+						packet.Write(player.wheelchairUUID);
+						packet.Write(player.onChairUUID);
 						packet.Send(-1, playernumber);
 					}
-					else
+					break;
+
+				case WheelchairMessageType.clientTickData:
+					playernumber = reader.ReadByte();
+					player = Main.player[playernumber].GetModPlayer<WheelchairPlayer>();
+					player.mouseAiming = reader.ReadSingle();
+					Vector2 chairPos = Vector2.Zero, chairVel = Vector2.Zero;
+					if (WheelchairPlayer.ALWAYS_SYNC_CHAIR_POS)
                     {
-						// NetMessage.SendChatMessageFromClient(new Terraria.Chat.ChatMessage(System.String.Format("receive changes (this is {2}) {0} {1}", player.player.name, player.hasPrescription, Main.player[Main.myPlayer].name)));
+						chairPos.X = reader.ReadSingle();
+						chairPos.Y = reader.ReadSingle();
+						chairVel.X = reader.ReadSingle();
+						chairVel.Y = reader.ReadSingle();
+					}
+					if (Main.netMode == Terraria.ID.NetmodeID.Server)
+					{
+						var packet = GetPacket();
+						packet.Write((byte)WheelchairMessageType.clientTickData);
+						packet.Write(playernumber);
+						packet.Write(player.mouseAiming);
+						if (WheelchairPlayer.ALWAYS_SYNC_CHAIR_POS)
+                        {
+							packet.Write(chairPos.X);
+							packet.Write(chairPos.Y);
+							packet.Write(chairVel.X);
+							packet.Write(chairVel.Y);
+						}
+						packet.Send(-1, playernumber);
 					}
 					break;
 				default:
@@ -68,7 +89,8 @@ namespace TerraWheelchair
 		internal enum WheelchairMessageType : byte
 		{
 			syncWheelchairPlayer,
-			clientChanges
+			clientChanges,
+			clientTickData
 		}
 	}
 }
