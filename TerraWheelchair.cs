@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using Terraria;
@@ -9,8 +9,7 @@ namespace TerraWheelchair
 {
 	public class TerraWheelchair : Mod
 	{
-
-		public override void HandlePacket(BinaryReader reader, int whoAmI)
+        public override void HandlePacket(BinaryReader reader, int whoAmI)
 		{
 			WheelchairMessageType msgType = (WheelchairMessageType)reader.ReadByte();
 			switch (msgType)
@@ -41,7 +40,7 @@ namespace TerraWheelchair
 					//Main.NewText(string.Format("{2} rece {0} holding = {1}", player.player.name, player.holdingWheelchair, Main.myPlayer));
 					if (Main.netMode == Terraria.ID.NetmodeID.Server)
 					{
-						var packet = GetPacket();
+						ModPacket packet = GetPacket();
 						packet.Write((byte)WheelchairMessageType.clientChanges);
 						packet.Write(playernumber); 
 						packet.Write(player.hasPrescription);

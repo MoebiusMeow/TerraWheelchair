@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,6 +9,7 @@ namespace TerraWheelchair.Projectiles
 {
 	public class WheelchairSpawningEffect : ModProjectile
 	{
+		public Projectile projectile => Projectile;
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Wheelchair Effect");

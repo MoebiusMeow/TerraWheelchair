@@ -1,12 +1,5 @@
-----------------
-Update 2021/9/10
-v0.9.5
-- Network package reworked
-Fixed glitches of wheelchairs in multiplayer! now wheelchairs work exactly well as in single player! (no more lagging on your wheelchair)
-- Fixed some collision bug, also allowing bypassing platforms when holding a wheelchair
-重做了网络部分，修复了轮椅闪烁问题，现在多人游戏中轮椅可以和单人一样流畅
-修复了一些碰撞Bug，现在轮椅可以在手持时穿越平台
-----------------
+Available on 1.4 tModLoader!
+支持最新稳定版tModLoader！
 
 Added a real wheelchair entity! (not a mount item)
 
@@ -36,18 +29,21 @@ Mechanics:
 - Only the player who own the wheelchair entity can push the wheelchair. If you want to carry your friends around, you'll need to summon your wheelchair.
 - The prescription item even allow you to sit on your own wheelchair (e.g. in single player). If that happens, the wheelchair will get into auto runing state to slowly carry you around (since others can't push the wheelchair you summoned).
 
-- 1.4 Alpha support
-- Get this mod for tml 1.4 on Steam Workshop
-
 Bug report: MoebiusMeow@gmail.com
 
-Version 0.9.5 (on 1.3 tml)
+Version 0.9.6.0 
 by Moebius Meow
 
+----------------
+v0.9.6.0 - Immigrated to 1.4 tML 更新至最新的tModLoader版本
+v0.9.5.5 - Fixed minor sync bugs 修复了同步上的一些小问题
+v0.9.5.4 - Fixed sound effects positioning issue, added support for conveyor belts 修复了音效没有立体音的问题，加入了传送带支持
+v0.9.5.2 - Added a new wheelchair for town NPCs 加入了运载NPC的轮椅
+----------------
 
 
 轮椅Mod！
-加入了一个支持载人和推动、投掷的轮椅实体！
+加入了支持载人和推动、投掷的轮椅实体！（两种轮椅分别支持运载其他玩家或者NPC）
 
 - 为联机整活而生！让你的小伙伴们坐上你的轮椅被你带飞（或者让他们来载你）
 - 双人轮椅开荒挑战？试试禁止移动然后让你的朋友用轮椅载着你开荒（你可以在轮椅上输出）
@@ -78,5 +74,5 @@ by Moebius Meow
 
 作者QQ邮箱 MoebiusMeow@qq.com
 
-Version 0.9.5 (on 1.3 tml)
+Version 0.9.6.0
 by Moebius Meow

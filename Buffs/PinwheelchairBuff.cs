@@ -11,14 +11,15 @@ using Terraria.Localization;
 
 namespace TerraWheelchair.Buffs
 {
-	public class WheelchairBuff : ModBuff
+	public class PinwheelchairBuff : ModBuff
 	{
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault("Wheelchair Master");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "轮椅大师");
-			Description.SetDefault("You have summoned a wheelchair\nGo help those in need");
-			Description.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "你有一架宝贝轮椅\n快去帮助有需要的人");
+        public override void SetStaticDefaults()
+        {
+            base.SetStaticDefaults();
+			DisplayName.SetDefault("Voodoo Wheelchair Master");
+			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "巫毒轮椅大师");
+			Description.SetDefault("You have summoned a wheelchair\nGo help those town NPCs in need");
+			Description.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "你有一架宝贝轮椅\n快去帮助有需要的NPC");
 			Main.buffNoSave[Type] = true;
 			Main.buffNoTimeDisplay[Type] = true;
 		}
@@ -28,7 +29,7 @@ namespace TerraWheelchair.Buffs
 			int wheelchairCount = 0;
 			WheelchairPlayer wp = player.GetModPlayer<WheelchairPlayer>();
 			Object obj = wp.GetWheelchair();
-			if (obj != null && !(obj is PinwheelchairProj))
+			if (obj as PinwheelchairProj != null)
 				wheelchairCount += 1;
 
 			if (wheelchairCount > 0)

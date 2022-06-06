@@ -12,15 +12,16 @@ using Terraria.Localization;
 
 namespace TerraWheelchair.Items
 {
-	public class Wheelchair : ModItem
+	public class Pinwheelchair : ModItem
 	{
 		public Item item => Item;
 		public override void SetStaticDefaults() 
 		{
-			DisplayName.SetDefault("Portable Wheelchair");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "便携轮椅");
-			Tooltip.SetDefault("Summon a wheelchair to carry other players\nYou can push the wheelchair when holding this item\n\"I'll be by your side.\"");
-			Tooltip.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "召唤一架轮椅来运载其他玩家\n手持此物品时，你可以推动轮椅\n“有我在你身边”");
+			DisplayName.SetDefault("Pinwheel Wheelchair");
+			// DisplayName.AddTranslation(Terraria.Localization.GameCulture.Chinese, "风车轮椅");
+			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "风车轮椅");
+			Tooltip.SetDefault("Summon a wheelchair to carry town NPCs\nThere is a pinwheel on its handle\nYou can push the wheelchair when holding this item\n\"Wheel done! Bought from the merchant\"");
+			Tooltip.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "召唤一架轮椅来运载城镇NPC\n把手上插了一个小风车\n手持此物品时，你可以推动轮椅\n“疯车！从商人那买的”");
 		}
 
 		public override void SetDefaults() 
@@ -34,7 +35,7 @@ namespace TerraWheelchair.Items
 			item.useStyle = ItemUseStyleID.Swing;
 			item.noMelee = true;
 			item.value = 1;
-			item.rare = ItemRarityID.Expert;
+			item.rare = ItemRarityID.Green;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = false;
 		}
@@ -48,20 +49,20 @@ namespace TerraWheelchair.Items
 			if (mouseDirection.X != 0)
 				player.direction = (mouseDirection.X > 0 ? 1 : -1);
 			chair = player.GetModPlayer<WheelchairPlayer>().GetWheelchair();
-			if (chair != null && (chair is PinwheelchairProj) && player.GetModPlayer<WheelchairPlayer>().IsLocalPlayer)
-			{
-				player.ClearBuff(ModContent.BuffType<PinwheelchairBuff>());
+			if (chair != null && !(chair is PinwheelchairProj) && player.GetModPlayer<WheelchairPlayer>().IsLocalPlayer)
+            {
+				player.ClearBuff(ModContent.BuffType<WheelchairBuff>());
 				chair.PreKill(chair.projectile.timeLeft);
 				chair.projectile.active = false;
 				chair = null;
-			}
+            }
 			if (chair == null)
 			{
-				player.AddBuff(ModContent.BuffType<WheelchairBuff>(), 2000);
+				player.AddBuff(ModContent.BuffType<PinwheelchairBuff>(), 2000);
 				if (player.GetModPlayer<WheelchairPlayer>().IsLocalPlayer)
 				{
-					int chairID = Projectile.NewProjectile(new EntitySource_ItemUse(player, item), (float)Math.Round(player.Center.X / 16 ) * 16, player.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<WheelchairProj>(), 0, 0, player.whoAmI, -1);
-					chair = Main.projectile[chairID].ModProjectile as WheelchairProj;
+					int chairID = Projectile.NewProjectile(new EntitySource_ItemUse(player, item), player.Center.X - player.direction * 10, player.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<PinwheelchairProj>(), 0, 0, player.whoAmI, -1);
+					chair = Main.projectile[chairID].ModProjectile as PinwheelchairProj;
 					chair.projectile.oldVelocity = chair.projectile.velocity = (player.velocity + new Vector2(0, -1)) / (chair.projectile.extraUpdates + 1f);
 					modPlayer.wheelchairUUID = chair.GetUUID;
 				}
@@ -75,18 +76,18 @@ namespace TerraWheelchair.Items
 					Vector2 towardsPlayer = (player.Center - chair.projectile.Center) / duration;
 					var trailID = Projectile.NewProjectile(new EntitySource_ItemUse(player, item), chair.projectile.Center.X, chair.projectile.Center.Y, towardsPlayer.X, towardsPlayer.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, 0, player.whoAmI);
 					Main.projectile[trailID].timeLeft = (int)duration;
-					chair.projectile.position = new Vector2((float)Math.Round(player.Center.X / 16) * 16 - 16, player.Center.Y -20);
-					//chair.projectile.oldVelocity = chair.projectile.velocity = player.velocity + new Vector2(0, -1);
+					chair.projectile.position = player.Center + new Vector2(-20 - player.direction * 10, -20);
 					chair.projectile.oldVelocity = chair.projectile.velocity = (player.velocity + new Vector2(0, -1)) / (chair.projectile.extraUpdates + 1f);
 					Projectile.NewProjectile(new EntitySource_ItemUse(player, item), chair.projectile.Center.X, chair.projectile.Center.Y, 8 * mouseDirection.X, 8 * mouseDirection.Y, ModContent.ProjectileType<WheelchairSpawningEffect>(), 0, 0);
 				}
 				else
 				{
-					// chair.projectile.velocity = player.velocity * 0.5f + 7 * mouseDirection;
 					chair.projectile.velocity = (player.velocity + 10 * mouseDirection) / (chair.projectile.extraUpdates + 1f);
+					chair.projectile.rotation = player.direction * 53.5f;
 					var force = chair.projectile.velocity.Length();
 					if (force > 15f)
 						chair.projectile.velocity *= 15f / force;
+					// Main.PlaySound(SoundID.Item, -1, -1, 1, 1.2f, 3.5f);
 					SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 1.2f }, player.Center);
 				}
 			} 

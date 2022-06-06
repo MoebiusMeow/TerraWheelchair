@@ -1,36 +1,37 @@
-using Microsoft.Xna.Framework;
+ï»¿using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace TerraWheelchair.Items
 {
 	public class WheelchairPrescription : ModItem
 	{
+		public Item item => Item;
 		public override void SetStaticDefaults() 
 		{
-			DisplayName.AddTranslation(Terraria.Localization.GameCulture.Chinese, "ÂÖÒÎÖ¤Ã÷");
+			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "è½®æ¤…è¯æ˜");
 			Tooltip.SetDefault("A prescription for wheelchair from your doctor\nFavorite this item to allow others to carry you with their wheelchair\n\"Need Help\"");
-			Tooltip.AddTranslation(Terraria.Localization.GameCulture.Chinese, "Ò½Éú³ö¾ßµÄÂÖÒÎÖ¤Ã÷Êé\n±ê¼ÇÎªÏ²°®Ê±£¬ÆäËûÈË¿ÉÒÔÓÃÂÖÒÎ½ÓËÍÄã\n¡°Õâ¸öÈËĞèÒª°ïÖú¡±");
+			Tooltip.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "åŒ»ç”Ÿå‡ºå…·çš„è½®æ¤…è¯æ˜ä¹¦\næ ‡è®°ä¸ºæ”¶è—æ—¶ï¼Œå…¶ä»–äººå¯ä»¥ç”¨è½®æ¤…æ¥é€ä½ \nâ€œè¿™ä¸ªäººéœ€è¦å¸®åŠ©â€");
 		}
 
 		public override void SetDefaults() 
 		{
 			item.scale = 0.5f;
-			item.holdStyle = ItemHoldStyleID.HoldingUp;
+			item.holdStyle = ItemHoldStyleID.HoldUp;
 			item.width = 10;
 			item.height = 10;
 			item.useStyle = 0;
-			item.value = 10000;
+			item.value = 1;
 			item.rare = ItemRarityID.Pink;
 		}
 
         public override void AddRecipes() 
 		{
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

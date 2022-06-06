@@ -1,3 +1,4 @@
 displayName = Terra Wheelchair
 author = MoebiusMeow
-version = 0.9.5
+version = 0.9.5.6
+homepage = https://forums.terraria.org/index.php?threads/terra-wheelchair-mod.107411/

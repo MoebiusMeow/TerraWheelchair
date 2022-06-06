@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
@@ -17,6 +17,8 @@ namespace TerraWheelchair
 {
 	public class WheelchairPlayer : ModPlayer
 	{
+		private Mod mod => Mod;
+		public Player player => Player;
 		public static bool ALWAYS_SYNC_CHAIR_POS => false;
 
 		// client -> sync -> server -> other clients
@@ -28,25 +30,26 @@ namespace TerraWheelchair
 
 		// local
 		public bool localHoldingChairItem;
+		public bool localHoldingNPCChairItem;
 
 		public bool IsLocalPlayer { get => Main.netMode != NetmodeID.Server && player.whoAmI == Main.myPlayer;  }
 
-		public WheelchairProj GetWheelchair()
+		public BaseWheelchairProj GetWheelchair()
         {
 			if (wheelchairUUID == -1) return null;
-			Projectile match = Main.projectile.FirstOrDefault(x => x.identity == wheelchairUUID);
-			return match == null ? null : match.modProjectile as WheelchairProj;
-			//int id = Projectile.GetByUUID(player.whoAmI, wheelchairUUID);
-			//return id == -1 ? null : Main.projectile[id].modProjectile as WheelchairProj;
+			Projectile match = Main.projectile.FirstOrDefault(x => x.active && x.projUUID == wheelchairUUID && x.owner == player.whoAmI);
+            BaseWheelchairProj ret = match == null ? null : match.ModProjectile as BaseWheelchairProj;
+			if (ret == null) wheelchairUUID = -1;
+			return ret;
         }
 
-		public WheelchairProj GetOnChair()
+		public BaseWheelchairProj GetOnChair()
 		{
 			if (onChairUUID == -1) return null;
-			Projectile match = Main.projectile.FirstOrDefault(x => x.identity == onChairUUID);
-			return match == null ? null : match.modProjectile as WheelchairProj;
-			//int id = Projectile.GetByUUID(player.whoAmI, onChairUUID);
-			//return id == -1 ? null : Main.projectile[id].modProjectile as WheelchairProj;
+			Projectile match = Main.projectile.FirstOrDefault(x => x.active && x.projUUID == onChairUUID);
+			BaseWheelchairProj ret = match == null ? null : match.ModProjectile as BaseWheelchairProj;
+			if (ret == null || ret.AI_Target != player.whoAmI) onChairUUID = -1;
+			return ret;
 		}
 
 		public override void ResetEffects()
@@ -69,12 +72,12 @@ namespace TerraWheelchair
 			UpdatePrescription();
 			ValidateOnChair();
 			Item item = player.inventory[player.selectedItem];
-			localHoldingChairItem = (item.type == ModContent.ItemType<Wheelchair>());
+			localHoldingChairItem = (item.type == ModContent.ItemType<Wheelchair>()) || (item.type == ModContent.ItemType<Pinwheelchair>());
 		}
 
 		private void ValidateOnChair()
         {
-			WheelchairProj chair = GetOnChair();
+			BaseWheelchairProj chair = GetOnChair();
 			if (chair != null && chair.AI_Target != player.whoAmI)
 			{ 
 				// wheelchair already occupied
@@ -148,7 +151,7 @@ namespace TerraWheelchair
 				packet.Write(mouseAiming);
 				if (WheelchairPlayer.ALWAYS_SYNC_CHAIR_POS)
 				{
-					WheelchairProj chair = GetWheelchair();
+					BaseWheelchairProj chair = GetWheelchair();
 					Vector2 chairPos = chair != null ? chair.projectile.position : Vector2.Zero;
 					Vector2 chairVel = chair != null ? chair.projectile.velocity : Vector2.Zero;
 					packet.Write(chairPos.X);
@@ -170,8 +173,9 @@ namespace TerraWheelchair
 			onChairUUID = -1; // false;
 		}
 
-		public override void SetupStartInventory(IList<Item> items, bool mediumcoreDeath)
-		{
+        public override void ModifyStartingInventory(IReadOnlyDictionary<string, List<Item>> itemsByMod, bool mediumCoreDeath)
+        {
+			List<Item> items = itemsByMod[Name];
 			Item item = new Item();
 			item.SetDefaults(ModContent.ItemType<Wheelchair>());
 			item.stack = 1;
@@ -180,7 +184,8 @@ namespace TerraWheelchair
 			item.SetDefaults(ModContent.ItemType<WheelchairPrescription>());
 			item.stack = 1;
 			items.Add(item);
-		}
+            base.ModifyStartingInventory(itemsByMod, mediumCoreDeath);
+        }
 
 		public bool UpdatePrescription()
 		{
@@ -188,6 +193,7 @@ namespace TerraWheelchair
             {
 				return hasPrescription;
             }
+			// Main.NewText(wheelchairUUID);
 			foreach (Item item in player.inventory)
             { 
 				if (item.favorited && item.type == ModContent.ItemType<WheelchairPrescription>())
@@ -215,18 +221,21 @@ namespace TerraWheelchair
 
         public override void PostUpdate()
         {
-			if (GetOnChair() == null)
+			if (onChairUUID != -1 && GetOnChair() == null)
+			{
+				// fix unhandled off chair event
 				OffWheelchair();
+			}
 		}
 
-        public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo)
+        public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo)
 		{
-			WheelchairProj chair = GetOnChair();
+			BaseWheelchairProj chair = GetOnChair();
 			if (chair != null)
 			{
 				// visually sync player position to wheelchair
 				// (real position is one tick behind player position due to update order)
-				drawInfo.position += -player.position + chair.projectile.position + new Vector2((-player.width + chair.projectile.width) * 0.5f + player.direction * 5, chair.projectile.height - player.height - 5f);
+				drawInfo.Position += -player.position + chair.projectile.position + new Vector2((-player.width + chair.projectile.width) * 0.5f + player.direction * 5, chair.projectile.height - player.height - 5f);
 
 				player.legFrameCounter = 0.0;
 				player.legFrame.Y = 1;
