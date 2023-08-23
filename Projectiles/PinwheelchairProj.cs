@@ -19,10 +19,6 @@ namespace TerraWheelchair.Projectiles
 		// public override int GetUUID => projectile.identity;
         public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("TownNPC Wheelchair");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "NPC轮椅");
-			// Main.projectileFrameCount[projectile.type] = 2;
-			// projectileID.Sets.MustAlwaysDraw[projectile.type] = true;
 			Main.projFrames[projectile.type] = 4;
 			ProjectileID.Sets.NeedsUUID[projectile.type] = true;
 		}

@@ -2,7 +2,6 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraWheelchair.NPCs;
 using TerraWheelchair.Projectiles;
 using TerraWheelchair.Buffs;
 using Terraria.DataStructures;
@@ -17,10 +16,6 @@ namespace TerraWheelchair.Items
 		public Item item => Item;
 		public override void SetStaticDefaults() 
 		{
-			DisplayName.SetDefault("Portable Wheelchair");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "便携轮椅");
-			Tooltip.SetDefault("Summon a wheelchair to carry other players\nYou can push the wheelchair when holding this item\n\"I'll be by your side.\"");
-			Tooltip.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "召唤一架轮椅来运载其他玩家\n手持此物品时，你可以推动轮椅\n“有我在你身边”");
 		}
 
 		public override void SetDefaults() 

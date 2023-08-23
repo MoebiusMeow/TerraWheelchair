@@ -2,7 +2,6 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraWheelchair.NPCs;
 using TerraWheelchair.Projectiles;
 using TerraWheelchair.Buffs;
 using Terraria.DataStructures;
@@ -17,11 +16,6 @@ namespace TerraWheelchair.Items
 		public Item item => Item;
 		public override void SetStaticDefaults() 
 		{
-			DisplayName.SetDefault("Pinwheel Wheelchair");
-			// DisplayName.AddTranslation(Terraria.Localization.GameCulture.Chinese, "风车轮椅");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "风车轮椅");
-			Tooltip.SetDefault("Summon a wheelchair to carry town NPCs\nThere is a pinwheel on its handle\nYou can push the wheelchair when holding this item\n\"Wheel done! Bought from the merchant\"");
-			Tooltip.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "召唤一架轮椅来运载城镇NPC\n把手上插了一个小风车\n手持此物品时，你可以推动轮椅\n“疯车！从商人那买的”");
 		}
 
 		public override void SetDefaults() 

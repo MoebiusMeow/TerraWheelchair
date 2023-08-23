@@ -12,7 +12,6 @@ namespace TerraWheelchair.Projectiles
 		public Projectile projectile => Projectile;
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Wheelchair Effect");
 		}
 
 		public override void SetDefaults()
@@ -23,6 +22,11 @@ namespace TerraWheelchair.Projectiles
 			projectile.timeLeft = 4;
 			projectile.tileCollide = false;
 			projectile.ai[0] = -1;
+		}
+
+		public override bool? CanCutTiles()
+		{
+			return false;
 		}
 
 		public override void AI()

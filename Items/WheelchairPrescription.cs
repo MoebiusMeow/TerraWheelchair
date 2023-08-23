@@ -11,9 +11,6 @@ namespace TerraWheelchair.Items
 		public Item item => Item;
 		public override void SetStaticDefaults() 
 		{
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "轮椅证明");
-			Tooltip.SetDefault("A prescription for wheelchair from your doctor\nFavorite this item to allow others to carry you with their wheelchair\n\"Need Help\"");
-			Tooltip.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "医生出具的轮椅证明书\n标记为收藏时，其他人可以用轮椅接送你\n“这个人需要帮助”");
 		}
 
 		public override void SetDefaults() 
@@ -22,7 +19,7 @@ namespace TerraWheelchair.Items
 			item.holdStyle = ItemHoldStyleID.HoldUp;
 			item.width = 10;
 			item.height = 10;
-			item.useStyle = 0;
+			item.useStyle = ItemUseStyleID.None;
 			item.value = 1;
 			item.rare = ItemRarityID.Pink;
 		}

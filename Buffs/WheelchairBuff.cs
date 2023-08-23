@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraWheelchair.Projectiles;
-using TerraWheelchair.NPCs;
 using TerraWheelchair;
 using Terraria.Localization;
 
@@ -15,10 +14,6 @@ namespace TerraWheelchair.Buffs
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Wheelchair Master");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "轮椅大师");
-			Description.SetDefault("You have summoned a wheelchair\nGo help those in need");
-			Description.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "你有一架宝贝轮椅\n快去帮助有需要的人");
 			Main.buffNoSave[Type] = true;
 			Main.buffNoTimeDisplay[Type] = true;
 		}

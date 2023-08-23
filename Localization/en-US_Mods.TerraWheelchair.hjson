@@ -1,0 +1,64 @@
+Buffs: {
+	PinwheelchairBuff: {
+		DisplayName: Voodoo Wheelchair Master
+		Description:
+			'''
+			You have summoned a voodoo wheelchair
+			Go help those town NPCs in need
+			[c/00FF00:Right-click the buff to despawn]
+			'''
+	}
+
+	WheelchairBuff: {
+		DisplayName: Wheelchair Master
+		Description:
+			'''
+			You have summoned a wheelchair
+			Go help those players in need
+			[c/00FF00:Right-click the buff to despawn]
+			'''
+	}
+}
+
+Items: {
+	Pinwheelchair: {
+		DisplayName: Pinwheel-chair
+		Tooltip:
+			'''
+			Summons a wheelchair to carry town NPCs
+			[c/00FF00:Right-click the buff to despawn]
+			There is a pinwheel on its handle
+			You can push the wheelchair when holding this item
+			‘Bought from the merchant’
+			'''
+	}
+
+	Wheelchair: {
+		DisplayName: Portable Wheelchair
+		Tooltip:
+			'''
+			Summons a wheelchair to carry other players (or yourself)
+			[c/00FF00:Right-click the buff to despawn]
+			You can push the wheelchair when holding this item
+			‘I'll be always by your side.’
+			'''
+	}
+
+	WheelchairPrescription: {
+		DisplayName: heelchairPrescription
+		Tooltip:
+			'''
+			A prescription for wheelchair from your doctor
+			[c/00FF00:Favorite this item] to allow being carried with wheelchairs
+			Otherwise, you cannot sit on the wheelchair
+			‘Needs help?’
+			'''
+	}
+}
+
+Projectiles: {
+	BaseWheelchairProj.DisplayName: Base Wheelchair Proj
+	PinwheelchairProj.DisplayName: Pinwheelchair Proj
+	WheelchairProj.DisplayName: Wheelchair Proj
+	WheelchairSpawningEffect.DisplayName: Wheelchair Spawning Effect
+}

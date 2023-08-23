@@ -1,0 +1,64 @@
+Buffs: {
+	PinwheelchairBuff: {
+		DisplayName: 巫毒轮椅大师
+		Description:
+			'''
+			你有一架宝贝轮椅
+			快去帮助有需要的NPC
+			[c/00FF00:右键召唤物Buff以收回]
+			'''
+	}
+
+	WheelchairBuff: {
+		DisplayName: 轮椅大师
+		Description:
+			'''
+			你有一架宝贝轮椅
+			快去帮助有需要的玩家
+			[c/00FF00:右键召唤物Buff以收回]
+			'''
+	}
+}
+
+Items: {
+	Pinwheelchair: {
+		DisplayName: 风车椅
+		Tooltip:
+			'''
+			召唤一架轮椅来运城镇NPC
+			[c/00FF00:右键召唤物Buff以收回]
+			把手上插了一个小风车
+			手持此物品时，你可以推动轮椅
+			‘从商人那买的’
+			'''
+	}
+
+	Wheelchair: {
+		DisplayName: 便携轮椅
+		Tooltip:
+			'''
+			召唤一架轮椅来运载其他玩家
+			[c/00FF00:右键召唤物Buff以收回]
+			手持此物品时，你可以推动轮椅
+			‘我会一直在你身边’
+			'''
+	}
+
+	WheelchairPrescription: {
+		DisplayName: 轮椅处方书
+		Tooltip:
+			'''
+			医生出具的轮椅处方书
+			[c/00FF00:标记为收藏]时，其他人可以用轮椅接送你
+			否则你不能坐上轮椅
+			‘需要帮您吗？’
+			'''
+	}
+}
+
+Projectiles: {
+	BaseWheelchairProj.DisplayName: Base Wheelchair Proj
+	PinwheelchairProj.DisplayName: Pinwheelchair Proj
+	WheelchairProj.DisplayName: Wheelchair Proj
+	WheelchairSpawningEffect.DisplayName: Wheelchair Spawning Effect
+}

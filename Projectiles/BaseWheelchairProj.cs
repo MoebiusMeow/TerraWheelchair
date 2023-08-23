@@ -35,10 +35,6 @@ namespace TerraWheelchair.Projectiles
 
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Wheelchair");
-			DisplayName.AddTranslation(GameCulture.FromCultureName(GameCulture.CultureName.Chinese), "轮椅");
-			// Main.projectileFrameCount[projectile.type] = 2;
-			// projectileID.Sets.MustAlwaysDraw[projectile.type] = true;
 			Main.projFrames[projectile.type] = 4;
             ProjectileID.Sets.NeedsUUID[projectile.type] = true;
         }
@@ -57,7 +53,12 @@ namespace TerraWheelchair.Projectiles
 			projectile.extraUpdates = 0;
 		}
 
-        public override bool PreDraw(ref Color lightColor)
+		public override bool? CanCutTiles()
+		{
+			return false;
+		}
+
+		public override bool PreDraw(ref Color lightColor)
         {
 			DrawOffsetX = projectile.spriteDirection == 1 ? 0 : -4;
 			UpdateWheelchairExtra();
@@ -123,15 +124,18 @@ namespace TerraWheelchair.Projectiles
 			}
 			if (target != null && target.player.whoAmI == owner.player.whoAmI)
 			{
-				// auto running mode
-				projectile.spriteDirection = -owner.player.direction;
-				projectile.velocity.X = (projectile.velocity.X * owner.player.direction >= -0.1 ? projectile.velocity.X * 0.9f + 0.2f * owner.player.direction / (1f + projectile.extraUpdates) : projectile.velocity.X * 0.9f);
-				owner.holdingWheelchair = false;
-				if (target.player.Distance(projectile.Center) > 100)
-                {
-					projectile.position = new Vector2((float)Math.Round(target.player.Center.X / 16) * 16 - 0.5f * projectile.width, (float)Math.Round(target.player.Center.Y / 16) * 16 - 0.5f * projectile.height);
-					projectile.velocity = Vector2.Zero;
-                }
+				if (owner.player.ItemAnimationActive && owner.player.HeldItem.type == ModContent.ItemType<Items.Wheelchair>())
+				{
+					// manually running mode
+					projectile.spriteDirection = -owner.player.direction;
+					projectile.velocity.X = (projectile.velocity.X * owner.player.direction >= -0.1 ? projectile.velocity.X * 0.9f + 0.5f * owner.player.direction / (1f + projectile.extraUpdates) : projectile.velocity.X * 0.9f);
+					owner.holdingWheelchair = false;
+					if (target.player.Distance(projectile.Center) > 100)
+					{
+						projectile.position = new Vector2((float)Math.Round(target.player.Center.X / 16) * 16 - 0.5f * projectile.width, (float)Math.Round(target.player.Center.Y / 16) * 16 - 0.5f * projectile.height);
+						projectile.velocity = Vector2.Zero;
+					}
+				}
 			}
 			else
 			{
@@ -219,6 +223,18 @@ namespace TerraWheelchair.Projectiles
 					projectile.velocity.X *= (float)Math.Pow(0.95f, 1 / (1f + projectile.extraUpdates));
 				// Main.NewText(Main.tile[tx, ty]);
             }
+			if (projectile.velocity.X == 0 && projectile.oldVelocity.X == 0)
+                if (owner.player.whoAmI != AI_Target || !PLAYER_HOLDER)
+				{
+					if (localHolding)
+					{
+						int tx = (int)((projectile.Bottom.X - projectile.spriteDirection * 0.51f * projectile.width) / 16f);
+                        int ty = (int)((projectile.Bottom.Y - 2f) / 16f) - 1;
+						if (Main.tile[tx, ty].TileType == 0 || !Main.tileSolid[Main.tile[tx, ty].TileType])
+                            projectile.velocity.Y = MathF.Min(projectile.velocity.Y, -1f);
+						AI_Hopping = -1.0f;
+					}
+				}
 			if (projectile.velocity.X == 0 && Math.Abs(oldVelocity.X) >= 0.1f && projectile.oldVelocity.X != 0)
 			{
 				if (Math.Abs(AI_Hopping) <= 0.00001f)

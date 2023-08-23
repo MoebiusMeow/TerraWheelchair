@@ -1,5 +1,9 @@
-Available on 1.4 tModLoader!
-支持最新稳定版tModLoader！
+----------------
+v0.9.7.0
+- Immigrated to 1.4.4 tML 更新至tModLoader1.4.4版本
+- Wheelchairs no longer stuck by 1-block obstacles while held by a player 推轮椅时不再会被1格高的障碍卡住了
+- Wheelchairs no longer cut grass & pots 轮椅不再破坏植物和罐子
+----------------
 
 Added a real wheelchair entity! (not a mount item)
 
@@ -27,19 +31,13 @@ Mechanics:
 
 * Extra
 - Only the player who own the wheelchair entity can push the wheelchair. If you want to carry your friends around, you'll need to summon your wheelchair.
-- The prescription item even allow you to sit on your own wheelchair (e.g. in single player). If that happens, the wheelchair will get into auto runing state to slowly carry you around (since others can't push the wheelchair you summoned).
+- The prescription item even allow you to sit on your own wheelchair (e.g. in single player). If that happens, you have to swing your wheelchair item to accelerate the wheelchair!
+- You may have to accelerate to a certain speed level to come over the half-block/one-block obstacles.
 
 Bug report: MoebiusMeow@gmail.com
 
-Version 0.9.6.0 
+Version 0.9.7
 by Moebius Meow
-
-----------------
-v0.9.6.0 - Immigrated to 1.4 tML 更新至最新的tModLoader版本
-v0.9.5.5 - Fixed minor sync bugs 修复了同步上的一些小问题
-v0.9.5.4 - Fixed sound effects positioning issue, added support for conveyor belts 修复了音效没有立体音的问题，加入了传送带支持
-v0.9.5.2 - Added a new wheelchair for town NPCs 加入了运载NPC的轮椅
-----------------
 
 
 轮椅Mod！
@@ -67,12 +65,9 @@ v0.9.5.2 - Added a new wheelchair for town NPCs 加入了运载NPC的轮椅
 
 * 备注
 - 只有轮椅的召唤者可以推动这个轮椅实体。如果你想推轮椅，你需要召唤一个自己的轮椅（不能推别人召唤的）
-- 标记轮椅证书时你甚至可以坐在自己召唤的轮椅上（单人游戏中这是唯一的坐轮椅方式） 在这种情况下，轮椅会进入电动模式，自动慢慢往前运行
+- 标记轮椅证书时你甚至可以坐在自己召唤的轮椅上（单人游戏中这是唯一的坐轮椅方式） 
 
-- 支持1.4 tModLoader
-- 在Steam创意工坊上安装此MOD
+Bilibili @三月猫MMU
 
-作者QQ邮箱 MoebiusMeow@qq.com
-
-Version 0.9.6.0
+Version 0.9.7
 by Moebius Meow

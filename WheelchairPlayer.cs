@@ -9,7 +9,6 @@ using Terraria.ModLoader.IO;
 using Terraria.ID;
 using Terraria.DataStructures;
 using TerraWheelchair.Items;
-using TerraWheelchair.NPCs;
 using TerraWheelchair.Projectiles;
 using System.Linq;
 
@@ -56,7 +55,7 @@ namespace TerraWheelchair
 		{
 		}
 
-		public override void OnEnterWorld(Player player)
+		public override void OnEnterWorld()
 		{
 			wheelchairUUID = -1;
 			onChairUUID = -1;
@@ -93,9 +92,9 @@ namespace TerraWheelchair
 			return position;
 		}
 
-		public override void clientClone(ModPlayer clientClone)
+		public override void CopyClientState(ModPlayer targetCopy)
 		{
-			WheelchairPlayer clone = clientClone as WheelchairPlayer;
+			WheelchairPlayer clone = targetCopy as WheelchairPlayer;
 			clone.player.name = player.name;
 			clone.player.whoAmI = player.whoAmI;
 			clone.hasPrescription = hasPrescription;
@@ -173,9 +172,9 @@ namespace TerraWheelchair
 			onChairUUID = -1; // false;
 		}
 
-        public override void ModifyStartingInventory(IReadOnlyDictionary<string, List<Item>> itemsByMod, bool mediumCoreDeath)
+        public override IEnumerable<Item> AddStartingItems(bool mediumCoreDeath)
         {
-			List<Item> items = itemsByMod[Name];
+			List<Item> items = new();
 			Item item = new Item();
 			item.SetDefaults(ModContent.ItemType<Wheelchair>());
 			item.stack = 1;
@@ -184,7 +183,7 @@ namespace TerraWheelchair
 			item.SetDefaults(ModContent.ItemType<WheelchairPrescription>());
 			item.stack = 1;
 			items.Add(item);
-            base.ModifyStartingInventory(itemsByMod, mediumCoreDeath);
+			return items;
         }
 
 		public bool UpdatePrescription()
